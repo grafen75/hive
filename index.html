@@ -1,36 +1,55 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Miro Fullskärm</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Embedded Miro Board</title>
   <style>
+    /* Gör iframe full width och full height utan marginaler */
     html, body {
-      margin: 0;
-      padding: 0;
       height: 100%;
-      overflow: hidden;
+      margin: 0;
+    }
+    .miro-embed {
+      width: 100%;
+      height: 100vh; /* hela viewport-höjden */
+      border: 0;
+      display: block;
     }
 
-    #miroBoard {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
+    /* Fallback-meddelande centrerat om iframe inte kan laddas */
+    .fallback {
+      box-sizing: border-box;
+      width: 100%;
       height: 100vh;
-      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      color: #222;
     }
   </style>
 </head>
 <body>
 
-  <iframe 
-    id="miroBoard"
-    src="https://miro.com/app/board/uXjVJwJI_pU=/?share_link_id=873680708544"
-    allow="fullscreen; clipboard-read; clipboard-write"
-    allowfullscreen>
-    HEJ
+  <!-- Byt src till din board-URL (här använder jag den du gav) -->
+  <iframe class="miro-embed"
+          src="https://miro.com/app/board/uXjVJwJI_pU=/"
+          allowfullscreen
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
   </iframe>
+
+  <!-- Fallback som syns om iframe blockeras -->
+  <noscript>
+    <div class="fallback">
+      <div>
+        <h2>Kan inte visa Miro-boarden i iframe</h2>
+        <p>Öppna boarden direkt: <a href="https://miro.com/app/board/uXjVJwJI_pU=/" target="_blank" rel="noopener noreferrer">https://miro.com/app/board/uXjVJwJI_pU=/</a></p>
+      </div>
+    </div>
+  </noscript>
 
 </body>
 </html>
