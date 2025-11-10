@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Miro board - Fullscreen iframe</title>
+  <title>Miro board - Fullbredd iframe (Safari-fix)</title>
   <style>
     html, body {
       height: 100%;
@@ -13,22 +13,110 @@
       overflow: hidden;
       background: #000;
     }
-    iframe {
+    #miroFrame {
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0; /* top:0; right:0; bottom:0; left:0 */
       width: 100%;
-      height: 100%;
-      border: none;
+      height: 100vh;
+      border: 0;
+      display: block;
+    }
+    /* Enkel fallback-meddelande om inbäddningen blockas */
+    #fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #fff;
+      padding: 20px;
+      background: rgba(0,0,0,0.6);
+    }
+    #fallback a {
+      color: #fff;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <iframe
-    src="https://miro.com/app/board/uXjVJwJI_pU=/?share_link_id=965992949797"
-    allow="fullscreen; clipboard-write; encrypted-media"
-    sandbox="allow-scripts allow-forms allow-same-origin allow-top-navigation-by-user-activation"
-    title="Miro board">
-  </iframe>
-</body>
-</html>
+    id="miroFrame"
+    title="Miro board"
+    loading="eager"
+    allow="fullscreen; clipboard-write; encrypted-media; autoplay; camera; microphone; geolocation"
+    allowfullscreen
+  ></iframe>
+
+  <div id="fallback" role="status" aria-live="polite">
+    Det gick inte att visa boardet i iframen. <br>
+    <a id="openLink" href="#" target="_blank" rel="noopener">Öppna Miro-board i ny flik</a>
+  </div>
+
+  <script>
+    (function () {
+      const original = "https://miro.com/app/board/uXjVJwJI_pU=/?share_link_id=965992949797";
+      // Försök skapa en 'live-embed' variant som ofta är bättre för inbäddning
+      const liveEmbed = original.replace("/app/board/", "/app/live-embed/");
+
+      const iframe = document.getElementById('miroFrame');
+      const fallback = document.getElementById('fallback');
+      const openLink = document.getElementById('openLink');
+
+      openLink.href = original;
+
+      // Försök ladda live-embed först
+      let triedOriginal = false;
+      let loaded = false;
+
+      function showFallback() {
+        fallback.style.display = 'flex';
+      }
+      function hideFallback() {
+        fallback.style.display = 'none';
+      }
+
+      function setSrc(url) {
+        try {
+          iframe.src = url;
+        } catch (e) {
+          // Några äldre Safari-versioner kan kasta på vissa src-manipulationer; fallback då
+          console.warn('Kan inte sätta iframe.src:', e);
+        }
+      }
+
+      // Om embed-block sker brukar onload inte triggas — använd timeout heuristik
+      function tryEmbed(url, timeout = 3000) {
+        return new Promise((resolve) => {
+          let done = false;
+          const t = setTimeout(() => {
+            if (!done) {
+              done = true;
+              resolve(false); // timeout -> troligt block
+            }
+          }, timeout);
+
+          iframe.onload = function () {
+            if (!done) {
+              done = true;
+              clearTimeout(t);
+              resolve(true); // laddade OK
+            }
+          };
+
+          setSrc(url);
+        });
+      }
+
+      (async function boot() {
+        // Först försök liveEmbed
+        const okLive = await tryEmbed(liveEmbed, 3000);
+        if (okLive) {
+          loaded = true;
+          hideFallback();
+          return;
+        }
+
+        // Om live-embed misslyckades, försök med original board-URL
+        const okOrig = await tryEmbed(original, 3000);
+        if (okOrig) {
