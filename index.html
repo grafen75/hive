@@ -3,191 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Miro board - Fullscreen embed</title>
+  <title>Miro board - Fullscreen iframe</title>
   <style>
-    /* Reset */
-    html,body {
+    html, body {
       height: 100%;
+      width: 100%;
       margin: 0;
-    }
-    /* Container */
-    .frame-wrap {
-      position: fixed;
-      inset: 0; /* top:0; right:0; bottom:0; left:0 */
+      padding: 0;
+      overflow: hidden;
       background: #000;
-      display: flex;
-      flex-direction: column;
     }
-
-    /* Top bar with controls (subtle) */
-    .topbar {
-      height: 44px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      background: rgba(0,0,0,0.35);
-      color: #fff;
-      z-index: 5;
-      backdrop-filter: blur(4px);
-    }
-    .topbar .title {
-      font-weight: 600;
-    }
-    .topbar .spacer { flex: 1; }
-
-    .btn {
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .btn:active { transform: translateY(1px); }
-
-    /* iframe fills remaining area */
     iframe {
-      flex: 1 1 auto;
-      border: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-    }
-
-    /* loader & message */
-    .fallback {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-      gap: 12px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.85));
-    }
-    .fallback a {
-      color: #fff;
-      text-decoration: underline;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <div class="frame-wrap" role="application">
-    <div class="topbar" aria-hidden="false">
-      <div class="title">Miro — Fullskärm</div>
-      <div class="spacer"></div>
-      <button id="openNew" class="btn" title="Öppna i ny flik">Öppna i ny flik</button>
-      <button id="enterFs" class="btn" title="Gå fullskärm">Fullskärm</button>
-      <button id="reload" class="btn" title="Ladda om">Ladda om</button>
-    </div>
-
-    <!-- Byt src här om du vill -->
-    <iframe id="miroFrame"
-      src="https://miro.com/app/board/uXjVJwJI_pU=/?share_link_id=965992949797"
-      allow="fullscreen; clipboard-write; encrypted-media"
-      sandbox="allow-scripts allow-forms allow-same-origin allow-top-navigation-by-user-activation"
-      title="Miro board">
-    </iframe>
-
-    <div id="fallback" class="fallback" role="status" aria-live="polite">
-      <div>
-        Det ser ut som om detta Miro-board inte kan visas i en iframe (tjänsten blockerar inbäddning).
-      </div>
-      <div>
-        <a id="fallbackLink" href="https://miro.com/app/board/uXjVJwJI_pU=/?share_link_id=965992949797" target="_blank" rel="noopener">Öppna Miro-board i ny flik</a>
-      </div>
-      <div>
-        Eller <button id="fallbackReload" class="btn">försök ladda om</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const iframe = document.getElementById('miroFrame');
-    const fallback = document.getElementById('fallback');
-
-    // Öppna i ny flik
-    document.getElementById('openNew').addEventListener('click', () => {
-      window.open(iframe.src, '_blank', 'noopener');
-    });
-
-    // Försök gå fullskärm för iframe's container
-    document.getElementById('enterFs').addEventListener('click', async () => {
-      try {
-        const elem = document.querySelector('.frame-wrap');
-        if (elem.requestFullscreen) {
-          await elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-          await elem.webkitRequestFullscreen();
-        } else {
-          alert('Fullskärms-API stöds inte i din webbläsare.');
-        }
-      } catch (e) {
-        console.error(e);
-        alert('Kunde inte aktivera fullskärm.');
-      }
-    });
-
-    // Ladda om iframe
-    document.getElementById('reload').addEventListener('click', () => {
-      // force reload of iframe
-      iframe.src = iframe.src;
-      hideFallback();
-    });
-
-    // Fallback reload knapp
-    document.getElementById('fallbackReload').addEventListener('click', () => {
-      iframe.src = iframe.src;
-      hideFallback();
-    });
-
-    // Kontrollera om iframe blockeras: sätt en timer och kolla om innehåll tillåter access
-    // NOTE: Om iframe är från annan origin så får vi cross-origin restrictions — vi använder en heuristik:
-    const checkEmbed = () => {
-      // Efter 2s, om vi inte kan accessa iframe.contentWindow.location utan undantag,
-      // eller om iframe.height är 0, visa fallback.
-      setTimeout(() => {
-        let blocked = false;
-        try {
-          // Accessing a cross-origin document will throw — treat that as possibly OK (it might still render).
-          // But some browsers set iframe contentWindow to null or width/height to 0 when blocked.
-          const cw = iframe.contentWindow;
-          if (!cw) blocked = true;
-        } catch (e) {
-          // cross-origin access denied -> still could be visible, don't mark blocked yet
-          blocked = false;
-        }
-
-        // If iframe's clientHeight is 0 or its document didn't render (heuristic), show fallback.
-        const rect = iframe.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) blocked = true;
-
-        // Another heuristic: after 3s if userAgent indicates CSP/X-Frame might have blocked (can't reliably detect).
-        if (blocked) {
-          showFallback();
-        } else {
-          // Wait a little longer to detect possible block by X-Frame-Options
-          setTimeout(() => {
-            // If the iframe still has a blank blank document (very approximate), show fallback.
-            // This isn't perfect due to cross-origin limits; keep conservative: do nothing.
-          }, 2000);
-        }
-      }, 2000);
-    };
-
-    function showFallback() {
-      fallback.style.display = 'flex';
-    }
-    function hideFallback() {
-      fallback.style.display = 'none';
-    }
-
-    // Kör check
-    window.addEventListener('load', checkEmbed, { once: true });
-  </script>
+  <iframe
+    src="https://miro.com/app/board/uXjVJwJI_pU=/?share_link_id=965992949797"
+    allow="fullscreen; clipboard-write; encrypted-media"
+    sandbox="allow-scripts allow-forms allow-same-origin allow-top-navigation-by-user-activation"
+    title="Miro board">
+  </iframe>
 </body>
 </html>
