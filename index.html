@@ -3,47 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inbäddad Miro-tavla (Full Höjd)</title>
+    <!-- Ändrad titel för att indikera fullskärm -->
+    <title>Miro Inbäddning (Fullskärm)</title>
     <!-- Ladda Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Sätter Inter som standardfont och tar bort all default padding */
+        /* Sätter Inter som standardfont och säkerställer att ingen marginal/padding finns */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f4f7f9;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
-<!-- Body tar bort default padding och centrerar innehållet -->
-<body class="min-h-screen flex flex-col">
+<!-- Body tar upp hela skärmhöjden -->
+<body class="min-h-screen w-full">
 
-    <!-- Sidhuvudet är nu fullbredd och har lite padding för texten -->
-    <header class="w-full p-4 text-center bg-white shadow-sm flex-shrink-0">
-        <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Miro Inbäddning (Full Höjd)</h1>
-        <p class="text-gray-600 mt-1">Den inbäddade tavlan visas nu i full höjd (100% av skärmen) för att ge en mer uppslukande upplevelse.</p>
-    </header>
-
-    <!-- Huvudbehållare för iframen - w-full för full bredd -->
-    <main class="w-full flex-grow bg-white overflow-hidden">
-        <!-- Behållare för att hantera full höjd (100% av kvarvarande viewport-höjd) -->
-        <!-- Vi använder h-screen (100vh) minus headerns höjd. Vi använder flex-grow för att ta upp resten. -->
-        <div class="h-screen w-full flex flex-col">
-            <!-- Här har vi den fulla höjden. Vi använder flex-grow på iframen för att fylla ut utrymmet under headern -->
-            <iframe
-                width="100%"
-                height="100%"
-                src="https://miro.com/app/live-embed/uXjVJwJI_pU=/?embedMode=view_only_without_ui"
-                frameborder="0"
-                scrolling="no"
-                allow="fullscreen; clipboard-read; clipboard-write"
-                allowfullscreen
-                class="flex-grow block"
-                style="min-height: 0;"
-            ></iframe>
-        </div>
+    <!-- Huvudbehållare för iframen - tar upp 100% av skärmen (bredd och höjd) -->
+    <main class="w-full h-screen bg-white overflow-hidden">
+        <!-- Den inbäddade Miro-koden -->
+        <iframe
+            width="100%"
+            height="100%"
+            src="https://miro.com/app/live-embed/uXjVJwJI_pU=/?embedMode=view_only_without_ui"
+            frameborder="0"
+            scrolling="no"
+            allow="fullscreen; clipboard-read; clipboard-write"
+            allowfullscreen
+            class="block"
+        ></iframe>
     </main>
-
-    <!-- Tog bort foten eftersom den tar upp onödig plats i "fullskärmsvyn" -->
 
 </body>
 </html>
