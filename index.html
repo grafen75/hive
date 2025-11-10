@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inbäddad Miro-tavla</title>
+    <title>Inbäddad Miro-tavla (Full Höjd)</title>
     <!-- Ladda Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -14,20 +14,21 @@
         }
     </style>
 </head>
-<!-- Tog bort padding från body för att tillåta full bredd på main-elementet -->
-<body class="min-h-screen flex flex-col items-center">
+<!-- Body tar bort default padding och centrerar innehållet -->
+<body class="min-h-screen flex flex-col">
 
     <!-- Sidhuvudet är nu fullbredd och har lite padding för texten -->
-    <header class="w-full p-4 mb-6 text-center bg-white shadow-sm">
-        <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Miro Inbäddning (Full Breddd)</h1>
-        <p class="text-gray-600 mt-1">Nedan visas den inbäddade interaktiva tavlan, som sträcker sig över hela sidans bredd.</p>
+    <header class="w-full p-4 text-center bg-white shadow-sm flex-shrink-0">
+        <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Miro Inbäddning (Full Höjd)</h1>
+        <p class="text-gray-600 mt-1">Den inbäddade tavlan visas nu i full höjd (100% av skärmen) för att ge en mer uppslukande upplevelse.</p>
     </header>
 
-    <!-- Huvudbehållare för iframen - max-w-7xl borttagen för full bredd -->
-    <main class="w-full flex-grow bg-white shadow-xl overflow-hidden border-gray-200">
-        <!-- Behållare för att hantera responsiv höjd (85% av viewport-höjden) -->
-        <div class="h-[85vh] w-full">
-            <!-- Den inbäddade Miro-koden -->
+    <!-- Huvudbehållare för iframen - w-full för full bredd -->
+    <main class="w-full flex-grow bg-white overflow-hidden">
+        <!-- Behållare för att hantera full höjd (100% av kvarvarande viewport-höjd) -->
+        <!-- Vi använder h-screen (100vh) minus headerns höjd. Vi använder flex-grow för att ta upp resten. -->
+        <div class="h-screen w-full flex flex-col">
+            <!-- Här har vi den fulla höjden. Vi använder flex-grow på iframen för att fylla ut utrymmet under headern -->
             <iframe
                 width="100%"
                 height="100%"
@@ -36,14 +37,13 @@
                 scrolling="no"
                 allow="fullscreen; clipboard-read; clipboard-write"
                 allowfullscreen
-                class="block"
+                class="flex-grow block"
+                style="min-height: 0;"
             ></iframe>
         </div>
     </main>
 
-    <footer class="mt-4 p-4 text-center text-sm text-gray-500 w-full">
-        <p>&copy; Innehåll inbäddat från Miro.</p>
-    </footer>
+    <!-- Tog bort foten eftersom den tar upp onödig plats i "fullskärmsvyn" -->
 
 </body>
 </html>
