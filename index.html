@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Ändrad titel för att indikera fullskärm -->
-    <title>Miro Inbäddning (Fullskärm)</title>
-    <!-- Ladda Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Titel är nu tom för att undvika att visa text någonstans -->
+    <title></title>
     <style>
-        /* Sätter Inter som standardfont och säkerställer att ingen marginal/padding finns */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f7f9;
+        /* CSS för att säkerställa att body och html täcker hela viewporten utan marginaler */
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Förhindra scrollbars om möjligt */
         }
     </style>
 </head>
-<!-- Body tar upp hela skärmhöjden -->
-<body class="min-h-screen w-full">
+<!-- Body tar upp hela skärmhöjden och bredden -->
+<body>
 
     <!-- Huvudbehållare för iframen - tar upp 100% av skärmen (bredd och höjd) -->
-    <main class="w-full h-screen bg-white overflow-hidden">
+    <main style="width: 100%; height: 100%;">
         <!-- Den inbäddade Miro-koden -->
         <iframe
             width="100%"
@@ -31,7 +30,7 @@
             scrolling="no"
             allow="fullscreen; clipboard-read; clipboard-write"
             allowfullscreen
-            class="block"
+            style="display: block;"
         ></iframe>
     </main>
 
